@@ -99,7 +99,22 @@ python scripts/04_interactive_chat.py
 ```
 > 支持终端实时流式多轮对话测试，输入 `/reset` 清空对话历史，输入 `exit` 或 `quit` 退出。
 
-### 5. 一键生成论文全套插图
+### 5. RTX 5070 硬件算力深度适配与大模型垂直微调 (进阶实战)
+若配有单卡 NVIDIA RTX 5070 (12GB 显存) 或同等算力显卡，可直接运行工业级 Qwen2.5-7B 微调管线：
+
+1. **构建大规模油气专业问答与诊断数据集 (6,000 条)**：
+```bash
+python scripts/build_oil_dataset.py
+```
+> 输出包含测井评价、卡钻预警、采油工程故障与管网安全规范的万级结构化对话数据集。
+
+2. **启动 5070 4-bit QLoRA 高效微调**：
+```bash
+python scripts/train_5070_qlora.py
+```
+> 配置 `bfloat16`、`paged_adamw_8bit`、`gradient_checkpointing`，结合 $r=16, \alpha=32$ 全线性投影层适配，在 12GB 显存下完美实现 7B 大模型单卡训练。
+
+### 6. 一键生成论文全套插图
 ```bash
 python scripts/05_generate_figures.py
 ```
