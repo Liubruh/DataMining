@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Validator Agent (校验子进程)
-负责自动化核验 LaTeX 论文格式、字数、Overleaf兼容性、GB/T 7714引用、图表编号与交叉引用、学术诚信要素
+负责自动化核验对话大模型 LaTeX 论文格式、字数、Overleaf兼容性、GB/T 7714引用、图表编号与交叉引用、学术诚信要素
 """
 
 import os
@@ -12,12 +12,10 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
 def strip_latex_comments_and_commands(text):
-    # Remove comments
     text = re.sub(r'(?<!\\)%.*$', '', text, flags=re.MULTILINE)
     return text
 
 def count_chinese_characters(text):
-    # Match Chinese characters
     chinese_chars = re.findall(r'[\u4e00-\u9fff]', text)
     return len(chinese_chars)
 
@@ -50,11 +48,10 @@ def check_paper(tex_path, bib_path, figures_dir):
     else:
         issues.append("未标注中图分类号")
 
-    # 2. 检查论文题目长度 (≤ 25字)
+    # 2. 检查论文题目长度 (<= 25字)
     title_match = re.search(r'\\title\{([^}]+)\}', content)
     if title_match:
         raw_title = title_match.group(1).strip()
-        # count title length ignoring latex tags
         clean_title = re.sub(r'\\[a-zA-Z]+', '', raw_title)
         title_len = len(re.findall(r'[\u4e00-\u9fff0-9a-zA-Z]', clean_title))
         if title_len <= 25:
@@ -74,7 +71,6 @@ def check_paper(tex_path, bib_path, figures_dir):
         else:
             warnings.append(f"中文摘要字数提示：当前为{cn_abs_chars}字（指南要求300-500字左右）")
             
-        # check keywords separator
         if '分号' in cn_abs_text or ';' in cn_abs_text or '；' in cn_abs_text:
             passes.append("中文关键词分隔符符合分号规范")
         else:
@@ -82,16 +78,13 @@ def check_paper(tex_path, bib_path, figures_dir):
     else:
         issues.append("未找到中文摘要环境 \\begin{abstract}")
 
-    # 4. 检查正文字数统计 (要求≥5000字，建议6000-8000字)
-    # 正文提取：从第一章开始，到第6章结束，排除摘要、目录、参考文献、附录、致谢
+    # 4. 检查正文字数统计 (要求>=5000字，建议6000-8000字)
     body_match = re.search(r'\\mainmatter(.*?)(?:\\appendix|\\begin\{thebibliography\}|\\bibliography\{)', content, re.DOTALL)
     if not body_match:
-        # fallback: search from 第1章 to 附录/参考文献
         body_match = re.search(r'(\\chapter\{引言|\\chapter\{第1章)(.*?)(?:\\appendix|\\chapter\{致谢\}|\\begin\{thebibliography\}|\\bibliography\{)', content, re.DOTALL)
     
     if body_match:
         body_text = body_match.group(0)
-        # remove equations, figures, tables from word count
         clean_body = re.sub(r'\\begin\{(?:equation|figure|table|tabular|table\*|figure\*|align)\}.*?\\end\{(?:equation|figure|table|tabular|table\*|figure\*|align)\}', '', body_text, flags=re.DOTALL)
         body_cn_count = count_chinese_characters(clean_body)
         if body_cn_count >= 5000:
@@ -125,7 +118,6 @@ def check_paper(tex_path, bib_path, figures_dir):
     fig_files = re.findall(r'\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}', content)
     missing_files = []
     for ff in fig_files:
-        # check with or without extension
         found = False
         candidates = [ff, ff + '.pdf', ff + '.png', ff + '.jpg',
                       os.path.join(figures_dir, os.path.basename(ff)),

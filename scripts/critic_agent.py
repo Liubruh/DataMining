@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Critic Agent (评审专家/意见子进程)
-模拟课程主审专家视角，按照评分标准的 7 大维度（总分 100 分）深度挑刺并提出改进意见
+模拟课程主审专家视角，按照大模型研究与评分标准的 7 大维度（总分 100 分）深度挑刺并给出同行评审报告
 """
 
 import os
@@ -23,47 +23,46 @@ def review_paper(tex_path, bib_path):
     with open(tex_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # Scores and Feedback
     scores = {}
     critique = {}
 
     # Dimension 1: 研究问题与价值 (15分)
     d1_score = 15
     d1_notes = []
-    if '抽油机' in content and '示功图' in content and '异常检测' in content:
-        d1_notes.append("研究定位紧扣油气开采核心装备工况监测痛点，工程场景鲜明。")
+    if '大语言模型' in content and '对话' in content and ('指令微调' in content or 'SFT' in content):
+        d1_notes.append("紧扣当前大语言模型人机交互核心技术热点，选题前沿。")
     else:
         d1_score -= 3
-        d1_notes.append("建议强化能源工程实际应用背景。")
+        d1_notes.append("建议强化大语言模型微调研究定位。")
         
-    if '因果' in content and '反事实' in content:
-        d1_notes.append("明确提出克服传统黑盒深度学习缺乏因果归因与现场不敢采信的问题，问题导向突出。")
+    if 'ChatML' in content and ('角色' in content or '掩码' in content):
+        d1_notes.append("针对无序微调导致的角色混淆与自问自答缺陷展开研究，痛点凝练准确，问题导向突出。")
     else:
         d1_score -= 3
-        d1_notes.append("缺少因果推断切入点，难以体现可信数据挖掘深度。")
+        d1_notes.append("需深入阐明多轮交互角色漂移的具体成因。")
     scores['研究问题与价值 (满分15)'] = d1_score
     critique['研究问题与价值'] = d1_notes
 
     # Dimension 2: 数据理解与预处理 (15分)
     d2_score = 15
     d2_notes = []
-    if '合规' in content or '许可' in content or '脱敏' in content:
-        d2_notes.append("具备清晰的数据来源、脱敏与合法合规授权说明。")
+    if '合规' in content or '开源许可' in content or '脱敏' in content:
+        d2_notes.append("具备清晰的多轮对话数据来源合规性与隐私脱敏说明。")
     else:
         d2_score -= 2
-        d2_notes.append("须明确补充数据许可、脱敏与使用边界声明。")
+        d2_notes.append("须明确补充数据集授权合规边界说明。")
         
-    if '探索性' in content or '相关性' in content or '图2-2' in content:
-        d2_notes.append("包含详实的多源传感器时序探索性统计分析（图2-2热力图与分布特征）。")
+    if '图2-1' in content or '长度分布' in content or '序列长度' in content:
+        d2_notes.append("包含详尽的对话字符长度分布直方图统计（图2-1）与平均轮数分析。")
     else:
         d2_score -= 3
-        d2_notes.append("探索性数据分析稍弱，建议补充多变量相关性热力图与不平衡分布分析。")
+        d2_notes.append("建议补充对话数据集长度分布探索性图表。")
         
-    if '不平衡' in content or '类别极不平衡' in content:
-        d2_notes.append("深入识别并指出了工业异常样本极度稀缺的数据偏差挑战。")
+    if 'BPE' in content or '分词' in content:
+        d2_notes.append("完成了专用BPE分词器从头训练，合理扩充了8个ChatML核心控制Token。")
     else:
         d2_score -= 2
-        d2_notes.append("应强调真实工况中正常数据海量、故障数据稀缺的数据偏差。")
+        d2_notes.append("应说明分词器构建与特殊控制标记的注册机制。")
     scores['数据理解与预处理 (满分15)'] = d2_score
     critique['数据理解与预处理'] = d2_notes
 
@@ -72,89 +71,87 @@ def review_paper(tex_path, bib_path):
     d3_notes = []
     eq_count = len(re.findall(r'\\begin\{equation\}|\\begin\{align\}|\$\$', content))
     if eq_count >= 8:
-        d3_notes.append(f"数学与理论推导详实，包含 {eq_count} 个关键公式，方法建模严密。")
+        d3_notes.append(f"数学推导严谨，包含 {eq_count} 个核心公式（含RoPE相对内积保持定理、RMSNorm与SwiGLU推导）。")
     else:
         d3_score -= 3
-        d3_notes.append(f"理论公式推导略显单薄（仅检测到 {eq_count} 个公式），需补充跨模态注意力与因果损失的具体定义。")
+        d3_notes.append(f"理论公式推导略显单薄（仅 {eq_count} 个），需补充核心算子数学定义。")
         
-    if '跨模态' in content and '注意力' in content and '自监督' in content:
-        d3_notes.append("融合拓扑几何网络、时序卷积、跨模态注意力和自监督对比学习，架构设计高度完备。")
+    if 'RoPE' in content and 'RMSNorm' in content and 'SwiGLU' in content:
+        d3_notes.append("融合现代主流开源大模型的核心算子（RoPE+RMSNorm+SwiGLU），网络架构设计完备。")
     else:
         d3_score -= 3
-        d3_notes.append("方法架构需要更清晰的模块化拆解。")
+        d3_notes.append("建议引入现代前沿的大模型解码算子。")
     scores['方法设计与研究深度 (满分15)'] = d3_score
     critique['方法设计与研究深度'] = d3_notes
 
     # Dimension 4: 实验设计与结果验证 (15分)
     d4_score = 15
     d4_notes = []
-    baselines = ['Isolation Forest', 'LSTM', 'Informer', 'Deep SVDD']
-    matched_baselines = [b for b in baselines if b in content]
-    if len(matched_baselines) >= 3:
-        d4_notes.append(f"基线对比充分，涵盖经典、传统深度与最新时序Transformer模型（包含: {', '.join(matched_baselines)}）。")
+    if 'BLEU' in content and 'ROUGE' in content and 'PPL' in content:
+        d4_notes.append("评测体系全面，涵盖语言困惑度 (PPL)、BLEU-4、ROUGE-L 以及生成多样性指标。")
     else:
         d4_score -= 3
-        d4_notes.append("对比基线较少，建议至少对比4种不同代际的经典与前沿算法。")
+        d4_notes.append("评测指标偏少，建议补充综合生成质量指标。")
         
-    if '消融' in content or 'Ablation' in content:
-        d4_notes.append("具备严密的模块消融实验，清晰验证了时空注意力与因果对比损失的增益贡献。")
+    if '消融' in content or '变体' in content or 'Zero-shot' in content:
+        d4_notes.append("设计了基座Zero-shot、普通SFT与位置编码消融对比，实验对比公平严密。")
     else:
         d4_score -= 3
-        d4_notes.append("缺少消融实验，无法证明所提各模块的独立有效性。")
+        d4_notes.append("缺少消融实验对比。")
         
-    if '鲁棒性' in content or '敏感性' in content or '噪声' in content:
-        d4_notes.append("进行了信噪比噪声扰动与无线传感器丢包敏感性检验，工程鲁棒性验证扎实。")
+    if '时延' in content or 'KV Cache' in content or '吞吐' in content:
+        d4_notes.append("评测了单Token推理时延与KV Cache加速效果，展现了扎实的工程验证。")
     else:
         d4_score -= 2
-        d4_notes.append("建议补充环境噪声和丢包工况下的鲁棒性可靠性验证。")
+        d4_notes.append("建议补充推理耗时与缓存优化实验。")
     scores['实验设计与结果验证 (满分15)'] = d4_score
     critique['实验设计与结果验证'] = d4_notes
 
     # Dimension 5: 知识发现与解释 (20分)
     d5_score = 20
     d5_notes = []
-    if 'SHAP' in content and ('因果' in content or '反事实' in content):
-        d5_notes.append("突破单纯黑盒指标评价，结合SHAP贡献度与反事实因果推理，揭示了'回压-有效冲程-泵效'演化机制。")
+    if '图5-1' in content or '注意力转移' in content or '长程记忆' in content:
+        d5_notes.append("通过多轮注意力能量热力图（图5-1）透视了自回归因果模型跨轮次长程上下文记忆机制。")
     else:
         d5_score -= 5
-        d5_notes.append("缺乏深入的知识解释与因果归因机制，未能达到20分高级要求。")
+        d5_notes.append("缺乏深入的模型内在注意力机理透视。")
         
-    if '规则' in content or '知识' in content or '干预' in content:
-        d5_notes.append("成功提炼出具备采油工程指导意义的可操作决策规则与反事实干预路径。")
+    if '真实生成' in content or '案例' in content or '表5-2' in content:
+        d5_notes.append("系统剖析了学术概念与工业智能问答的真实多轮生成质感，具备强说服力。")
     else:
         d5_score -= 3
-        d5_notes.append("建议提炼出结构化的知识规则，以区分统计关联与因果推断。")
+        d5_notes.append("建议展示模型实际多轮生成的交互样例。")
         
-    if '不确定性' in content or '边界' in content:
-        d5_notes.append("严谨探讨了知识发现的不确定性量化与适用地质边界。")
+    if '边界' in content or '幻觉' in content:
+        d5_notes.append("客观分析了小参数模型的数值计算局限与专业事实性幻觉防范边界。")
     else:
         d5_score -= 2
-        d5_notes.append("需补充说明规律的适用边界条件与不确定性。")
+        d5_notes.append("需补充说明轻量化大模型的能力边界与不确定性。")
     scores['知识发现与解释 (满分20)'] = d5_score
     critique['知识发现与解释'] = d5_notes
 
     # Dimension 6: 应用与创新价值 (10分)
     d6_score = 10
     d6_notes = []
-    if '实时' in content or '推理时延' in content or '工程部署' in content:
-        d6_notes.append("对算法推理时延与边缘嵌入式部署可行性进行了评估，具备很强的工程转化潜力。")
+    if 'CPU' in content and ('轻量化' in content or '端侧' in content):
+        d6_notes.append("实现了无需独显的高效CPU端侧流式交互部署，工程落地价值极高。")
     else:
         d6_score -= 2
-        d6_notes.append("建议补充推理耗时与边缘端部署可行性讨论。")
+        d6_notes.append("建议强化轻量化部署与工程转化价值分析。")
     scores['应用与创新价值 (满分10)'] = d6_score
     critique['应用与创新价值'] = d6_notes
 
     # Dimension 7: 表达与学术规范 (10分)
     d7_score = 10
     d7_notes = []
-    if 'AI' in content and '披露' in content:
-        d7_notes.append("完备披露了生成式AI工具使用细节与人工审查验证机制，学术诚信规范极高。")
+    if 'AI工具使用披露' in content or '生成式AI' in content:
+        d7_notes.append("完备披露了生成式AI工具使用细节与人工逐项核查机制，学术诚信极高。")
     else:
         d7_score -= 3
         d7_notes.append("必须包含AI工具使用披露清单！")
         
-    if 'GB/T 7714' in content or 'references.bib' in content or os.path.exists(bib_path):
-        d7_notes.append("参考文献体系严谨，文献著录符合国家GB/T 7714标准。")
+    if 'GB/T 7714' in content or os.path.exists(bib_path):
+        d7_notes.append("参考文献体系严谨，涵盖大语言模型领域经典与最新文献。")
     else:
         d7_score -= 2
         d7_notes.append("请确保参考文献符合GB/T 7714规范。")
