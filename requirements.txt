@@ -1,0 +1,14 @@
+# DataMining Project Dependencies
+# 基础运行环境 (CPU / GPU 通用)
+torch>=2.2.0
+tokenizers>=0.19.0
+matplotlib>=3.8.0
+numpy>=1.24.0
+
+# 进阶 QLoRA 5070 单卡微调环境 (NVIDIA GPU 必需)
+transformers>=4.40.0
+datasets>=2.18.0
+accelerate>=0.28.0
+peft>=0.10.0
+bitsandbytes>=0.43.0
+scipy>=1.11.0

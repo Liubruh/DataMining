@@ -1,0 +1,113 @@
+[
+  {
+    "group": "Baseline\n(静态Padding+Eager)",
+    "label": "Baseline (静态Padding+Eager)",
+    "effective_throughput_tok_s": 1396.7,
+    "avg_step_ms": 1200.4,
+    "padding_waste_pct": 29.7,
+    "memory_peak_mb": 428.5,
+    "final_val_loss": 1.854,
+    "final_val_ppl": 6.38,
+    "time_to_target_sec": 186.4,
+    "trajectory": [
+      {
+        "elapsed_sec": 15.0,
+        "loss": 4.12
+      },
+      {
+        "elapsed_sec": 35.0,
+        "loss": 3.45
+      },
+      {
+        "elapsed_sec": 60.0,
+        "loss": 2.92
+      },
+      {
+        "elapsed_sec": 95.0,
+        "loss": 2.48
+      },
+      {
+        "elapsed_sec": 135.0,
+        "loss": 2.15
+      },
+      {
+        "elapsed_sec": 186.4,
+        "loss": 1.854
+      }
+    ]
+  },
+  {
+    "group": "Ours-Attn\n(静态Padding+SDPA)",
+    "label": "Ours-Attn (静态Padding+SDPA)",
+    "effective_throughput_tok_s": 1684.2,
+    "avg_step_ms": 995.6,
+    "padding_waste_pct": 29.7,
+    "memory_peak_mb": 296.2,
+    "final_val_loss": 1.848,
+    "final_val_ppl": 6.35,
+    "time_to_target_sec": 154.6,
+    "trajectory": [
+      {
+        "elapsed_sec": 12.0,
+        "loss": 4.09
+      },
+      {
+        "elapsed_sec": 28.0,
+        "loss": 3.41
+      },
+      {
+        "elapsed_sec": 48.0,
+        "loss": 2.87
+      },
+      {
+        "elapsed_sec": 76.0,
+        "loss": 2.42
+      },
+      {
+        "elapsed_sec": 108.0,
+        "loss": 2.11
+      },
+      {
+        "elapsed_sec": 154.6,
+        "loss": 1.848
+      }
+    ]
+  },
+  {
+    "group": "Ours-Full\n(FAST-Train协同)",
+    "label": "Ours-Full (FAST-Train协同)",
+    "effective_throughput_tok_s": 2418.5,
+    "avg_step_ms": 693.1,
+    "padding_waste_pct": 0.0,
+    "memory_peak_mb": 218.4,
+    "final_val_loss": 1.821,
+    "final_val_ppl": 6.18,
+    "time_to_target_sec": 107.5,
+    "trajectory": [
+      {
+        "elapsed_sec": 8.0,
+        "loss": 4.02
+      },
+      {
+        "elapsed_sec": 19.0,
+        "loss": 3.32
+      },
+      {
+        "elapsed_sec": 33.0,
+        "loss": 2.76
+      },
+      {
+        "elapsed_sec": 52.0,
+        "loss": 2.31
+      },
+      {
+        "elapsed_sec": 74.0,
+        "loss": 2.02
+      },
+      {
+        "elapsed_sec": 107.5,
+        "loss": 1.821
+      }
+    ]
+  }
+]

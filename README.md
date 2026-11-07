@@ -53,6 +53,9 @@ C:\Users\lbybr\Desktop\DataMining
 │   ├── 03_evaluate_dialogue.py         # 客观指标自动化评测 (PPL, BLEU-4, ROUGE-L, Distinct-1/2, 推理时延)
 │   ├── 04_interactive_chat.py          # 交互式多轮对话 CLI 命令行程序 (支持动态上下文记忆)
 │   ├── 05_generate_figures.py          # 论文 6 幅高清科研图表自动化绘制脚本 (PDF 矢量 + PNG 预览)
+│   ├── 06_pretrain_from_scratch.py     # 【从零预训练】33.6M 纯自研架构模型全自回归从零训练流水线
+│   ├── 07_speed_optimization_benchmark.py # 【吞吐优化对照】FAST-Train 训练吞吐与开销优化对照消融测试
+│   ├── train_5070_qlora.py             # 【5070 进阶】Qwen2.5-7B 工业级 QLoRA 4-bit 微调管线
 │   ├── validator_agent.py              # 【校验子进程】自动化合规性与排版规范校验
 │   └── critic_agent.py                 # 【评审子进程】按评分准则 7 大维度开展同行盲审评测
 ├── figures/                        # 论文插图目录 (矢量 PDF + 高清 PNG)
@@ -61,9 +64,12 @@ C:\Users\lbybr\Desktop\DataMining
 │   ├── fig4_1_training_loss_curve.pdf  # 图4-1: 5 轮微调训练损失与验证集困惑度收敛曲线
 │   ├── fig4_2_ablation_study.pdf       # 图4-2: 基线模型与消融实验性能雷达对比图
 │   ├── fig4_3_noise_robustness.pdf     # 图4-3: 单 Token 生成时延与 KV Cache 性能对比
+│   ├── fig4_4_throughput_latency_ablation.pdf # 图4-4: 训练有效吞吐率与单步迭代时延消融对比柱状图
+│   ├── fig4_5_wallclock_convergence.pdf # 图4-5: 真实物理累计耗时维度下的损失收敛演化曲线
 │   └── fig5_1_shap_causal_attribution.pdf # 图5-1: 多轮交互长程因果注意力迁移热力图
 └── outputs/                        # 真实训练与评测产出结果
     ├── training_loss.csv           # 训练过程中记录的 Step-Loss 与 Epoch-PPL
+    ├── speed_optimization_results.json # FAST-Train 吞吐优化实测评测数据
     ├── dialogue_metrics.json       # 客观评测基准对比数据 (Base, Vanilla SFT, Dialogue SFT, No RoPE)
     └── multi_turn_chat_logs.txt    # 4 类真实人机交互多轮对话评测日志 (学术概念/数据挖掘/编程交互/常识)
 ```
@@ -114,7 +120,16 @@ python scripts/train_5070_qlora.py
 ```
 > 配置 `bfloat16`、`paged_adamw_8bit`、`gradient_checkpointing`，结合 $r=16, \alpha=32$ 全线性投影层适配，在 12GB 显存下完美实现 7B 大模型单卡训练。
 
-### 6. 一键生成论文全套插图
+### 6. RTX 5070 从零开始预训练 (Pre-train from Scratch，自研架构+从零权重)
+若追求最硬核的底层工程工作量，不借用任何现成模型权重，可直接启动从零自回归预训练：
+```bash
+python scripts/06_pretrain_from_scratch.py
+```
+> - **纯自研架构**：RoPE 旋转位置编码 + RMSNorm + SwiGLU + SDPA FlashAttention，33.6M 参数量设计；
+> - **零外部权重**：权重 100% 随机高斯初始化 ($std=0.02$)，纯依靠手头语料自回归因果学习；
+> - **单卡 5070 算力拉满**：支持 BF16/FP16 AMP 混合精度与余弦学习率衰减，实时记录 Step-Loss、PPL 收敛及 Token/s 硬件吞吐率。
+
+### 7. 一键生成论文全套插图
 ```bash
 python scripts/05_generate_figures.py
 ```
